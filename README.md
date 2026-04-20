@@ -1,0 +1,72 @@
+global_defs {
+    router_id RTR-2
+    vrrp_skip_check_adv_addr
+    vrrp_garp_interval 0
+    vrrp_gna_interval 0
+}
+
+# Проверка связи с провайдером (шлюз на ens18)
+vrrp_script chk_gateway_min {
+    script "ping -c 1 -W 5 10.200.0.1 > /dev/null 2>&1"
+    interval 5
+    weight -15
+    fall 1
+    rise 1
+}
+
+vrrp_instance VI_10 {
+    state BACKUP
+    interface vlan10
+    virtual_router_id 10
+    priority 100
+    advert_int 1
+    preempt yes
+    authentication {
+        auth_type PASS
+        auth_pass vlan10_secret
+    }
+    virtual_ipaddress {
+        172.16.10.1/24 dev vlan10
+    }
+    track_script {
+        chk_gateway_min
+    }
+}
+
+vrrp_instance VI_20 {
+    state MASTER
+    interface vlan20
+    virtual_router_id 20
+    priority 115
+    advert_int 1
+    preempt yes
+    authentication {
+        auth_type PASS
+        auth_pass vlan20_secret
+    }
+    virtual_ipaddress {
+        172.16.21.1/23 dev vlan20
+    }
+    track_script {
+        chk_gateway_min
+    }
+}
+
+vrrp_instance VI_30 {
+    state BACKUP
+    interface vlan30
+    virtual_router_id 30
+    priority 100
+    advert_int 1
+    preempt yes
+    authentication {
+        auth_type PASS
+        auth_pass vlan30_secret
+    }
+    virtual_ipaddress {
+        172.16.30.1/26 dev vlan30
+    }
+    track_script {
+        chk_gateway_min
+    }
+}
