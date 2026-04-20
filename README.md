@@ -5,7 +5,6 @@ global_defs {
     vrrp_gna_interval 0
 }
 
-# Проверка связи с провайдером (шлюз на ens18)
 vrrp_script chk_gateway_min {
     script "ping -c 1 -W 5 10.200.0.1 > /dev/null 2>&1"
     interval 5
